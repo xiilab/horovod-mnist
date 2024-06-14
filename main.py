@@ -18,6 +18,7 @@ import tensorflow as tf
 
 import horovod
 import horovod.tensorflow as hvd
+import numpy as np
 
 
 def main():
