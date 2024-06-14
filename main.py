@@ -31,8 +31,10 @@ def main():
     if gpus:
         tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
 
-    (mnist_images, mnist_labels), _ = \
-        tf.keras.datasets.mnist.load_data(path='mnist-%d.npz' % hvd.rank())
+    # Load MNIST dataset from local file
+    with np.load('./mnist.npz') as data:
+        mnist_images = data['x_train']
+        mnist_labels = data['y_train']
 
     dataset = tf.data.Dataset.from_tensor_slices(
         (tf.cast(mnist_images[..., tf.newaxis] / 255.0, tf.float32),
