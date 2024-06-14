@@ -90,6 +90,7 @@ def main():
 
         if batch % 10 == 0 and hvd.rank() == 0:
             print('Step #%d\tLoss: %.6f' % (batch, loss_value))
+            checkpoint.save(checkpoint_dir)
 
     # Horovod: save checkpoints only on worker 0 to prevent other workers from
     # corrupting it.
