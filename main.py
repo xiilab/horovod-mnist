@@ -58,8 +58,6 @@ def main():
     checkpoint_dir = './checkpoints'
     checkpoint = tf.train.Checkpoint(model=mnist_model, optimizer=opt)
 
-    tf.saved_model.save(mnist_model, checkpoint_dir)
-
     @tf.function
     def training_step(images, labels, first_batch):
         with tf.GradientTape() as tape:
@@ -90,12 +88,13 @@ def main():
 
         if batch % 10 == 0 and hvd.rank() == 0:
             print('Step #%d\tLoss: %.6f' % (batch, loss_value))
-            checkpoint.save(checkpoint_dir)
 
     # Horovod: save checkpoints only on worker 0 to prevent other workers from
     # corrupting it.
     if hvd.rank() == 0:
         checkpoint.save(checkpoint_dir)
+
+    tf.saved_model.save(mnist_model, checkpoint_dir)
 
 
 if __name__ == '__main__':
