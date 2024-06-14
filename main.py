@@ -32,7 +32,7 @@ def main():
         tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
 
     # Load MNIST dataset from local file
-    with np.load('./mnist.npz') as data:
+    with np.load('./dataset/mnist.npz') as data:
         mnist_images = data['x_train']
         mnist_labels = data['y_train']
 
