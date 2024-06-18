@@ -85,17 +85,21 @@ def main():
 
         return loss_value
 
-    # Horovod: adjust number of steps based on number of GPUs.
-    for batch, (images, labels) in enumerate(dataset.take(10000 // hvd.size())):
-        loss_value = training_step(images, labels, batch == 0)
+   # Horovod: adjust number of steps based on number of GPUs.
+    num_epochs = 100  # 원하는 epoch 수로 설정
+    steps_per_epoch = 10000 // hvd.size()
 
-        if batch % 10 == 0 and hvd.rank() == 0:
-            print('Step #%d\tLoss: %.6f' % (batch, loss_value))
+    for epoch in range(num_epochs):
+        for batch, (images, labels) in enumerate(dataset.take(steps_per_epoch)):
+            loss_value = training_step(images, labels, batch == 0)
 
-    # Horovod: save checkpoints only on worker 0 to prevent other workers from
-    # corrupting it.
-    if hvd.rank() == 0:
-        checkpoint.save(checkpoint_dir)
+            if batch % 10 == 0 and hvd.rank() == 0:
+                print('Epoch #%d, Step #%d\tLoss: %.6f' % (epoch, batch, loss_value))
+
+        # Horovod: save checkpoints only on worker 0 to prevent other workers from
+        # corrupting it.
+        if hvd.rank() == 0:
+            checkpoint.save(checkpoint_dir)
 
     tf.saved_model.save(mnist_model, checkpoint_dir)
 
